@@ -1,0 +1,7 @@
+# Esto es un comentario
+# lo ignoro
+#> Empezamos
+git switch mig-11.0
+git pull origin mig-11.0
+docker-compose build --pull --no-cache
+invoke git-aggregate

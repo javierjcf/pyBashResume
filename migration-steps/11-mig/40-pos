@@ -1,0 +1,3 @@
+cd odoo/custom/src/odoo
+git checkout -- .
+cd -

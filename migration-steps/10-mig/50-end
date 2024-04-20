@@ -1,0 +1,1 @@
+docker-compose run --rm odoo pg_dump devel | grep -v 'doodba INFO' > ~/bbdd/nogal_mig_11.sq
