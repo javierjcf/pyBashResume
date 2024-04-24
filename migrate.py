@@ -5,8 +5,7 @@ from custom_parser import CustomParser
 import subprocess
 import os
 import signal
-# from datetime import datetime
-
+import json
 import sys
 import time
 
@@ -38,75 +37,135 @@ def timing_decorator(func):
 
 
 @timing_decorator
-def execute_commands(line_data_list):
-    for line_data in line_data_list:
-        cmd = line_data.get('line')
-        type = line_data.get('type')
-        if type == 'comment':
-            logger.debug(f'Comentario {cmd} ignorado')
-        elif type == 'log':
-            logger.debug('Detectado ,mensaje LOG')
-            logger.info(cmd)
+def execute_commands(cmd):
+    logger.info(f"Ejecutando comando: {cmd}")
+    # EJECUCIÓN CON RUN SIN CAPTURAR SALIDA
+    # result = subprocess.run(
+    #     cmd, shell=True, stdout=subprocess.PIPE,
+    #     stderr=subprocess.PIPE, universal_newlines=True)
+    # execution_time = end_time - start_time
+    # if result.returncode != 0:
+    #     logger.error(
+    #         f"Error al ejecutar '{cmd}': {result.stderr.strip()}")
+    #     logger.info(f"Tiempo de ejecución: {execution_time}")
+    #     with open(state_file, "w") as f:
+    #         f.write(cmd)
+    #     logger.info("Estado guardado en el archivo 'state'")
+    #     exit(1)
+    # else:
+    #     logger.info(f"Completado '{cmd}' correctamente.")
+    #     logger.info(f"Tiempo de ejecución: {execution_time}")
 
-        logger.info(f"Ejecutando comando: {cmd}")
-
-        # EJECUCIÓN CON RUN SIN CAPTURAR SALIDA
-        # result = su<bprocess.run(
-        #     cmd, shell=True, stdout=subprocess.PIPE,
-        #     stderr=subprocess.PIPE, universal_newlines=True)
-        # execution_time = end_time - start_time
-        # if result.returncode != 0:
-        #     logger.error(
-        #         f"Error al ejecutar '{cmd}': {result.stderr.strip()}")
-        #     logger.info(f"Tiempo de ejecución: {execution_time}")
-        #     with open(state_file, "w") as f:
-        #         f.write(cmd)
-        #     logger.info("Estado guardado en el archivo 'state'")
-        #     exit(1)
-        # else:
-        #     logger.info(f"Completado '{cmd}' correctamente.")
-        #     logger.info(f"Tiempo de ejecución: {execution_time}")
-
-        # Ejecutar el comando con subprocess.Popen y leer la salida línea
-        # por línea
-        with subprocess.Popen(
-                cmd, shell=True, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT) as p:
-            for salida in iter(p.stdout.readline, b''):
-                sys.stdout.buffer.write(salida)
-                sys.stdout.buffer.flush()
-            p.wait()
-            if p.returncode != 0:
-                logger.error(f"Error en la ejecución del comando ${cmd}")
-                exit(1)
-            else:
-                logger.info(f"Se ha ejecutado el comando: $ {cmd}")
+    # Ejecutar el comando con subprocess.Popen y leer la salida línea
+    # por línea
+    with subprocess.Popen(
+            cmd, shell=True, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT) as p:
+        for salida in iter(p.stdout.readline, b''):
+            sys.stdout.buffer.write(salida)
+            sys.stdout.buffer.flush()
+        p.wait()
+        if p.returncode != 0:
+            logger.error(f"Error en la ejecución del comando ${cmd}")
+            return False
+        logger.info(f"Se ha ejecutado el comando: $ {cmd}")
+    return True
 
 
-# Función para ejecutar los comandos y manejar el estado de la migración
+def read_state(state_file):
+    """Lee el estado desde un archivo JSON y devuelve un diccionario"""
+    if not os.path.exists(state_file):
+        with open(state_file, 'w') as f:
+            json.dump({}, f, indent=4)
+        logger.debug(
+            f"Archivo '{state_file}' no existía, creado nuevo archivo.")
+        return {}
+
+    with open(state_file, 'r') as f:
+        return json.load(f)
+
+
+def write_state(state_file, state):
+    """Escribe el estado a un archivo JSON"""
+    with open(state_file, 'w') as f:
+        json.dump(state, f, indent=4)
+
+
 @timing_decorator
-# Obtiene la ruta completa del script que se está ejecutando
 def run_steps():
-    state_file = os.path.join(script_dir, 'migrate.state')
+    state_file = os.path.join(script_dir, 'state.json')
     dir_steps = os.path.join(script_dir, 'migration-steps')
+    # Leer el estado actual
+    state = read_state(state_file)
+    current_dir = state.get("current_dir")
+    current_file = state.get("current_file")
+    last_command = state.get("last_command")
+
+    # Obtener subdirectorios ordenados
     subdirs = sorted([name for name in os.listdir(dir_steps)])
-    logger.info(subdirs)
-    for subdir in subdirs:
+
+    # Encontrar el punto de inicio
+    start_dir = subdirs.index(current_dir) if current_dir else 0
+
+    if current_dir:
+        logger.warning(f"Reaunudando directorio: {current_dir}")
+
+    for subdir in subdirs[start_dir:]:
         mig_route = f"{dir_steps}/{subdir}"
         file_steps = sorted([name for name in os.listdir(mig_route)])
+
         logger.info("\033[34m" + subdir + "\033[0m")
-        for file in file_steps:
+
+        start_file = (
+            file_steps.index(current_file) if current_file else 0
+        )
+        if current_file:
+            logger.warning(f"Reaunudando fichero: {current_file}")
+
+        for file in file_steps[start_file:]:
             file_route = f"{mig_route}/{file}"
-            logger.debug(f'Ejecutando {file_route}')
+            logger.debug(f"Ejecutando {file_route}")
             rules = {
                 "#>": "log",
                 "#": "comment",
             }
             parser = CustomParser(file_route, rules)
-            line_data = parser.parse_line()
-            if not line_data:
+            line_data_list = parser.parse_line()
+            if not line_data_list:
                 continue
-            execute_commands(line_data)
+
+            # Restablecer el estado antes de ejecutar
+            state.update({
+                'current_dir': subdir,
+                'current_file': file,
+            })
+            write_state(state_file, state)
+            for line_data in line_data_list:
+                cmd = line_data.get('line')
+                type = line_data.get('type')
+                if type == 'comment':
+                    logger.debug(f'Comentario {cmd} ignorado')
+                    continue
+                elif type == 'log':
+                    logger.debug('Detectado ,mensaje LOG')
+                    logger.info(cmd)
+                    continue
+
+                # Es un comando, compruebo si lo skipeo
+                if last_command:
+                    if cmd != last_command:
+                        logger.debug(f"Skip del comando {cmd}")
+                    logger.info(f"REANUDANDO EJECUCIÓN DE {cmd}")
+                    
+
+                # Ejecutar comandos y manejar errores
+                success = execute_commands(cmd)
+                if not success:
+                    # Guardar el estado y salir
+                    state["last_command"] = cmd
+                    write_state(state_file, state)
+                    logger.error("Deteniendo ejecución por error en el comando.")
+                    exit(1)
 
 
 def set_doodba_dir():

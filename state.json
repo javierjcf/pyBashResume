@@ -1,0 +1,5 @@
+{
+    "current_dir": "10-mig",
+    "current_file": "50-end",
+    "last_command": "docker-compose run --rm odoo pg_dump devel | grep -v 'doodba INFO' > ~/bbdd/nogal_mig_11.sq"
+}
