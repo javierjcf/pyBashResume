@@ -212,6 +212,7 @@ def run_steps():
             if last_command:
                 if cmd != last_command:
                     logger.debug(f"Skip del comando {cmd}")
+                    continue
                 logger.info(f"REANUDANDO EJECUCIÓN DE {cmd}")
                 
 
