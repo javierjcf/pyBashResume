@@ -1,0 +1,15 @@
+invoke stop || true
+git switch mig-9.0
+git pull origin mig-10.0
+docker-compose build --pull --no-cache
+invoke git-aggregate
+#> Aplicando querie...
+docker-compose run --rm odoo psql devel < migration/mig-query.sql
+#> Aplicando parche...
+cd odoo/custom/src/odoo;git apply < ../../../../migration/mig-11.0.patch;cd -
+#> Haciendo upgrade...
+docker-compose run --rm odoo -u all --stop-after-init
+#> Ahora copiaría la BD...
+# docker-compose run --rm odoo pg_dump devel | grep -v "doodba INFO" > ~/bbdd/nogal_mig_9.sql 
+#> MIGRADO A V9 :)
+

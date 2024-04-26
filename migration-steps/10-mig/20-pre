@@ -1,2 +1,0 @@
-docker-compose run --rm odoo psql devel < migration/mig-query.sql
-cd odoo/custom/src/odoo; git apply < ../../../../migration/mig-11.0.patch; cd -

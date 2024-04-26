@@ -1,0 +1,14 @@
+#> EMPEZANDO SETUP V8
+git switch 8.0
+git pull origin 8.0
+docker-compose build --pull --no-cache
+invoke git-aggregate
+docker-compose up -d && invoke stop
+docker-compose run --rm odoo dropdb devel
+docker-compose run --rm odoo createdb devel
+docker-compose run --rm odoo psql devel < ~/bbdd/elnogal.sql
+#> UPDATE ALL V8...
+docker-compose run --rm odoo odoo -d devel -u all --stop-after-init
+#> RESTAURANDO FILESTORE
+echo "++++PARA PRUEBAS NO HACE FALTA++++"
+#> SETUP COMPLETADO :)

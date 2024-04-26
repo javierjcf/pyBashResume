@@ -97,76 +97,132 @@ def run_steps():
     dir_steps = os.path.join(script_dir, 'migration-steps')
     # Leer el estado actual
     state = read_state(state_file)
-    current_dir = state.get("current_dir")
+    # current_dir = state.get("current_dir")
     current_file = state.get("current_file")
     last_command = state.get("last_command")
 
+
     # Obtener subdirectorios ordenados
-    subdirs = sorted([name for name in os.listdir(dir_steps)])
+    # subdirs = sorted([name for name in os.listdir(dir_steps)])
 
     # Encontrar el punto de inicio
-    start_dir = subdirs.index(current_dir) if current_dir else 0
+    # start_dir = subdirs.index(current_dir) if current_dir else 0
 
-    if current_dir:
-        logger.warning(f"Reaunudando directorio: {current_dir}")
+    # if current_dir:
+    #     logger.warning(f"Reaunudando directorio: {current_dir}")
 
-    for subdir in subdirs[start_dir:]:
-        mig_route = f"{dir_steps}/{subdir}"
-        file_steps = sorted([name for name in os.listdir(mig_route)])
+    # for subdir in subdirs[start_dir:]:
+        # mig_route = f"{dir_steps}/{subdir}"
+        # file_steps = sorted([name for name in os.listdir(mig_route)])
 
-        logger.info("\033[34m" + subdir + "\033[0m")
+        # logger.info("\033[34m" + subdir + "\033[0m")
 
-        start_file = (
-            file_steps.index(current_file) if current_file else 0
-        )
-        if current_file:
-            logger.warning(f"Reaunudando fichero: {current_file}")
+        # start_file = (
+        #     file_steps.index(current_file) if current_file else 0
+        # )
+        # if current_file:
+        #     logger.warning(f"Reaunudando fichero: {current_file}")
 
-        for file in file_steps[start_file:]:
-            file_route = f"{mig_route}/{file}"
-            logger.debug(f"Ejecutando {file_route}")
-            rules = {
-                "#>": "log",
-                "#": "comment",
-            }
-            parser = CustomParser(file_route, rules)
-            line_data_list = parser.parse_line()
-            if not line_data_list:
-                continue
+        # for file in file_steps[start_file:]:
+        #     file_route = f"{mig_route}/{file}"
+        #     logger.debug(f"Ejecutando {file_route}")
+        #     rules = {
+        #         "#>": "log",
+        #         "#": "comment",
+        #     }
+        #     parser = CustomParser(file_route, rules)
+        #     line_data_list = parser.parse_line()
+        #     if not line_data_list:
+        #         continue
 
-            # Restablecer el estado antes de ejecutar
-            state.update({
-                'current_dir': subdir,
-                'current_file': file,
-            })
-            write_state(state_file, state)
-            for line_data in line_data_list:
-                cmd = line_data.get('line')
-                type = line_data.get('type')
-                if type == 'comment':
-                    logger.debug(f'Comentario {cmd} ignorado')
-                    continue
-                elif type == 'log':
-                    logger.debug('Detectado ,mensaje LOG')
-                    logger.info(cmd)
-                    continue
+        #     # Restablecer el estado antes de ejecutar
+        #     state.update({
+        #         'current_dir': subdir,
+        #         'current_file': file,
+        #     })
+        #     write_state(state_file, state)
+        #     for line_data in line_data_list:
+        #         cmd = line_data.get('line')
+        #         type = line_data.get('type')
+        #         if type == 'comment':
+        #             logger.debug(f'Comentario {cmd} ignorado')
+        #             continue
+        #         elif type == 'log':
+        #             logger.debug('Detectado ,mensaje LOG')
+        #             logger.info(cmd)
+        #             continue
 
-                # Es un comando, compruebo si lo skipeo
-                if last_command:
-                    if cmd != last_command:
-                        logger.debug(f"Skip del comando {cmd}")
-                    logger.info(f"REANUDANDO EJECUCIÓN DE {cmd}")
+        #         # Es un comando, compruebo si lo skipeo
+        #         if last_command:
+        #             if cmd != last_command:
+        #                 logger.debug(f"Skip del comando {cmd}")
+        #             logger.info(f"REANUDANDO EJECUCIÓN DE {cmd}")
                     
 
-                # Ejecutar comandos y manejar errores
-                success = execute_commands(cmd)
-                if not success:
-                    # Guardar el estado y salir
-                    state["last_command"] = cmd
-                    write_state(state_file, state)
-                    logger.error("Deteniendo ejecución por error en el comando.")
-                    exit(1)
+        #         # Ejecutar comandos y manejar errores
+        #         success = execute_commands(cmd)
+        #         if not success:
+        #             # Guardar el estado y salir
+        #             state["last_command"] = cmd
+        #             write_state(state_file, state)
+        #             logger.error("Deteniendo ejecución por error en el comando.")
+        #             exit(1)
+    
+    mig_route = f"{dir_steps}"
+    file_steps = sorted([name for name in os.listdir(mig_route)])
 
+    # logger.info("\033[34m" + subdir + "\033[0m")
+
+    start_file = (
+        file_steps.index(current_file) if current_file else 0
+    )
+    if current_file:
+        logger.warning(f"Reaunudando fichero: {current_file}")
+
+    for file in file_steps[start_file:]:
+        file_route = f"{mig_route}/{file}"
+        logger.debug(f"Ejecutando {file_route}")
+        rules = {
+            "#>": "log",
+            "#": "comment",
+        }
+        parser = CustomParser(file_route, rules)
+        line_data_list = parser.parse_line()
+        if not line_data_list:
+            continue
+
+        # Restablecer el estado antes de ejecutar
+        state.update({
+            # 'current_dir': subdir,
+            'current_file': file,
+        })
+        write_state(state_file, state)
+        for line_data in line_data_list:
+            cmd = line_data.get('line')
+            type = line_data.get('type')
+            if type == 'comment':
+                logger.debug(f'Comentario {cmd} ignorado')
+                continue
+            elif type == 'log':
+                logger.debug('Detectado ,mensaje LOG')
+                logger.info(cmd)
+                continue
+
+            # Es un comando, compruebo si lo skipeo
+            if last_command:
+                if cmd != last_command:
+                    logger.debug(f"Skip del comando {cmd}")
+                logger.info(f"REANUDANDO EJECUCIÓN DE {cmd}")
+                
+
+            # Ejecutar comandos y manejar errores
+            success = execute_commands(cmd)
+            if not success:
+                # Guardar el estado y salir
+                state["last_command"] = cmd
+                write_state(state_file, state)
+                logger.error("Deteniendo ejecución por error en el comando.")
+                exit(1)
 
 def set_doodba_dir():
     doodba_path = "/opt/doodba-openupgrade/elnogal-migration"

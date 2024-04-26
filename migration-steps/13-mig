@@ -1,0 +1,16 @@
+invoke stop || true
+git switch mig-13.0
+git pull origin mig-13.0
+docker-compose build --pull --no-cache
+invoke git-aggregate
+#> Aplicando querie...
+docker-compose run --rm odoo psql devel < migration/mig-query.sql
+#> Aplicando parches...
+cd odoo/custom/src/odoo; git apply < ../../../../migration/mig-13.0.patch; cd -
+#> MIGRANDO...
+docker-compose run --rm odoo --update all --stop-after-init
+# Desaciendo parches..
+cd odoo/custom/src/odoo; git checkout -- . ;cd -
+#> Ahora copiaría la BD...
+# docker-compose run --rm odoo pg_dump devel | grep -v "doodba INFO" > ~/bbdd/nogal_mig_13.sql 
+#> MIGRADO A V13 :)
