@@ -1,4 +1,4 @@
 {
-    "current_file": "12-mig",
-    "last_command": "invoke git-aggregate"
+    "current_file": "09-mig",
+    "last_command": "docker-compose run --rm odoo -u all --stop-after-init"
 }

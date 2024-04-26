@@ -7,12 +7,12 @@ invoke git-aggregate
 docker-compose run --rm odoo psql devel < migration/mig-query.sql
 #> Aplicando parches...
 cd odoo/custom/src/odoo; git apply < ../../../../migration/mig-16.0.patch; cd -
-cd odoo/custom/src/openupgrade; git apply < ../../../../migration/openupgrade-mig-15.0.patch; cd -
+cd odoo/custom/src/openupgrade; git apply < ../../../../migration/openupgrade-mig-16.0.patch; cd -
 # MIGRANDO...
 docker-compose run --rm odoo --update all --stop-after-initdocker-compose run odoo -u all --load=base,web,openupgrade_framework --upgrade-path=/opt/odoo/auto/addons/openupgrade_scripts/scripts --stop-after-init
 # Desaciendo parches..
 cd odoo/custom/src/odoo; git checkout -- . ; cd -
 cd odoo/custom/src/openupgrade; git checkout -- .; cd -
 #> Ahora copiaría la BD...
-# docker-compose run --rm odoo pg_dump devel | grep -v "doodba INFO" > ~/bbdd/nogal_mig_16.sql 
+docker-compose run --rm odoo pg_dump devel | grep -v "doodba INFO" > ~/bbdd/nogal_mig_16-2.sql 
 #> MIGRADO A V16 :)

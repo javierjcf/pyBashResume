@@ -90,6 +90,21 @@ def write_state(state_file, state):
     with open(state_file, 'w') as f:
         json.dump(state, f, indent=4)
 
+def read_user_confirmation(current_file, last_command):
+    while True:
+        question = f"¿Reanudar en el fichero {current_file} el comando {last_command}. Si (y) No (n)?\n"
+        res = input(question)
+        res = res.strip().lower()
+
+        match res:
+            case "y":
+                return True
+            case "n":
+                logger.info("ABORTANDO REAUNDAR")
+                return False
+            case _:
+                print("Introduce (y) para continuar (n) para salir")
+
 
 @timing_decorator
 def run_steps():
@@ -177,7 +192,11 @@ def run_steps():
         file_steps.index(current_file) if current_file else 0
     )
     if current_file:
+        confirm = read_user_confirmation(current_file, last_command)
+        if not confirm:
+            exit(1)
         logger.warning(f"Reaunudando fichero: {current_file}")
+
 
     for file in file_steps[start_file:]:
         file_route = f"{mig_route}/{file}"
@@ -197,6 +216,7 @@ def run_steps():
             'current_file': file,
         })
         write_state(state_file, state)
+        # import ipdb; ipdb.set_trace()
         for line_data in line_data_list:
             cmd = line_data.get('line')
             type = line_data.get('type')
@@ -214,6 +234,7 @@ def run_steps():
                     logger.debug(f"Skip del comando {cmd}")
                     continue
                 logger.info(f"REANUDANDO EJECUCIÓN DE {cmd}")
+                last_command = False
                 
 
             # Ejecutar comandos y manejar errores

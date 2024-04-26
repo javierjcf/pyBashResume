@@ -27,7 +27,8 @@ class ColoredFormatter(logging.Formatter):
 def build_logger(log_file):
     # Crear un logger
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
+    # logger.setLevel(logging.DEBUG)
 
     # Configurar el handler para el archivo de log
     file_handler = logging.FileHandler(log_file, mode='a')
