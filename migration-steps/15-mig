@@ -9,7 +9,7 @@ docker-compose run --rm odoo psql devel < migration/mig-query.sql
 cd odoo/custom/src/odoo; git apply < ../../../../migration/mig-15.0.patch; cd -
 cd odoo/custom/src/openupgrade; git apply < ../../../../migration/openupgrade-mig-15.0.patch; cd -
 cd odoo/custom/src/commission; git apply < ../../../../migration/commission-mig-15.0.patch; cd -
-# MIGRANDO...
+# MIGRANDO a v15...
 docker-compose run --rm odoo --update all --stop-after-initdocker-compose run odoo -u all --load=base,web,openupgrade_framework --upgrade-path=/opt/odoo/auto/addons/openupgrade_scripts/scripts --stop-after-init
 # Desaciendo parches..
 cd odoo/custom/src/odoo; git checkout -- .; cd -

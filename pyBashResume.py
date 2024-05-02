@@ -23,15 +23,11 @@ def timing_decorator(func):
         result = func(*args, **kwargs)
         end_time = time.time()
         execution_time = end_time - start_time
-        logger.warning(
-            f"Tiempo de ejecución de \
-            '{func.__name__}': {execution_time:.6f} segundos")
         # Convertir el tiempo de ejecución a horas, minutos y segundos
         horas = int(execution_time // 3600)
         minutos = int((execution_time % 3600) // 60)
         segundos = int(execution_time % 60)
-        logger.warning(f"Tiempo de ejecución de \
-                       '{func.__name__}': {horas}:, {minutos}:, {segundos}")
+        logger.warning(f"Tiempo de ejecución: {horas}:{minutos}:{segundos}")
         return result
     return wrapper
 
