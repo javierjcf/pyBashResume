@@ -9,7 +9,7 @@ docker-compose run --rm odoo psql devel < migration/mig-query.sql
 cd odoo/custom/src/odoo; git apply < ../../../../migration/mig-16.0.patch; cd -
 cd odoo/custom/src/openupgrade; git apply < ../../../../migration/openupgrade-mig-16.0.patch; cd -
 # MIGRANDO a v16...
-docker-compose run --rm odoo --update all --stop-after-initdocker-compose run odoo -u all --load=base,web,openupgrade_framework --upgrade-path=/opt/odoo/auto/addons/openupgrade_scripts/scripts --stop-after-init
+docker-compose run odoo -u all --load=base,web,openupgrade_framework --upgrade-path=/opt/odoo/auto/addons/openupgrade_scripts/scripts --stop-after-init
 # Desaciendo parches..
 cd odoo/custom/src/odoo; git checkout -- . ; cd -
 cd odoo/custom/src/openupgrade; git checkout -- .; cd -
