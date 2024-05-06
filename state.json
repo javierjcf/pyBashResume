@@ -1,4 +1,4 @@
 {
-    "current_file": "10-mig",
-    "last_command": ""
+    "current_file": "13-mig",
+    "last_command": "docker-compose run --rm odoo --update all --stop-after-init"
 }
