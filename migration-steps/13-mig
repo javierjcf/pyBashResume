@@ -14,3 +14,4 @@ cd odoo/custom/src/odoo; git checkout -- . ;cd -
 #> Ahora copiaría la BD...
 # docker-compose run --rm odoo pg_dump devel | grep -v "doodba INFO" > ~/bbdd/nogal_mig_13.sql 
 #> MIGRADO A V13 :)
+telegram-send "✅ Se ha migrado a v13 😀"

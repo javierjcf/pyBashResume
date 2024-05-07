@@ -1,0 +1,4 @@
+{
+    "current_file": "11-mig",
+    "last_command": "cd odoo/custom/src/odoo; git checkout -- .; cd -;"
+}

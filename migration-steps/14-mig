@@ -16,3 +16,4 @@ cd odoo/custom/src/openupgrade; git checkout -- .; cd -
 #> Ahora copiaría la BD...
 # docker-compose run --rm odoo pg_dump devel | grep -v "doodba INFO" > ~/bbdd/nogal_mig_14.sql 
 #> MIGRADO A V14 :)
+telegram-send "✅ Se ha migrado a v14 😀"

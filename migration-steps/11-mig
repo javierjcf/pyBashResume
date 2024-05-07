@@ -15,3 +15,7 @@ cd odoo/custom/src/odoo; git checkout -- .; cd -
 #> Ahora copiaría la BD...
 # docker-compose run --rm odoo pg_dump devel | grep -v "doodba INFO" > ~/bbdd/nogal_mig_11.sql 
 #> MIGRADO A V11 :)
+telegram-send "✅ Se ha migrado a v11 😀"
+
+
+

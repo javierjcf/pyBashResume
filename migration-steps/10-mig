@@ -17,3 +17,4 @@ cd odoo/custom/src/l10n-spain; git checkout -- .; cd -;
 #> Ahora copiaría la BD...
 # docker-compose run --rm odoo pg_dump devel | grep -v "doodba INFO" > ~/bbdd/nogal_mig_10.sql 
 #> MIGRADO A V10 :)
+telegram-send "✅ Se ha migrado a v10 😀"
