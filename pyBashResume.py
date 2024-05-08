@@ -212,7 +212,6 @@ def run_steps():
             'current_file': file,
         })
         write_state(state_file, state)
-        # import ipdb; ipdb.set_trace()
         for line_data in line_data_list:
             cmd = line_data.get('line')
             type = line_data.get('type')
@@ -231,7 +230,6 @@ def run_steps():
                     continue
                 logger.info(f"REANUDANDO EJECUCIÓN DE {cmd}")
                 last_command = False
-                
 
             # Ejecutar comandos y manejar errores
             success = execute_commands(cmd)
@@ -239,6 +237,18 @@ def run_steps():
                 # Guardar el estado y salir
                 state["last_command"] = cmd
                 write_state(state_file, state)
+
+                # Leer el archivo onerror y ejecutar la primera linea pasandosela a execute_commands
+                onerror_file = os.path.join(script_dir, 'onerror')
+                if os.path.exists(onerror_file):
+                    with open(onerror_file, 'r') as f:
+                        onerror_cmd = f.readline().strip()
+                        logger.info(f"Ejecutando comando onerror: {onerror_cmd}")
+                        success = execute_commands(onerror_cmd)
+                        if not success:
+                            logger.error("Error al ejecutar el comando onerror.")
+                            exit(1)
+
                 logger.error("Deteniendo ejecución por error en el comando.")
                 exit(1)
 
@@ -255,16 +265,17 @@ def set_doodba_dir():
         exit(1)
 
 
+# Función para manejar la interrupción por CTRL+C
+def signal_handler(sig, frame):
+    logger.warning("Interrumpido por el usuario.")
+    exit(0)
+
 # Función principal
 def main():
     set_doodba_dir()
     run_steps()
 
 
-# Función para manejar la interrupción por CTRL+C
-def signal_handler(sig, frame):
-    logger.warning("Interrumpido por el usuario.")
-    exit(0)
 
 
 if __name__ == "__main__":

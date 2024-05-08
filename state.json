@@ -1,4 +1,4 @@
 {
-    "current_file": "11-mig",
-    "last_command": "cd odoo/custom/src/odoo; git checkout -- .; cd -;"
+    "current_file": "13-mig",
+    "last_command": "docker-compose run --rm odoo --update all --stop-after-init"
 }
