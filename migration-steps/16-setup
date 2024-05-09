@@ -1,2 +1,13 @@
-#> Ahora vendría mi setup a la 16
-telegram-send "Toca preparar v16"
+invoke stop || true
+git switch 16.0
+git pull origin 16.0
+docker-compose build --pull --no-cache
+invoke git-aggregate
+#> Aplicando querie...
+# docker-compose run --rm odoo psql devel < migration/mig-query.sql
+#> Aplicando parches...
+# MIGRANDO a v16...
+# docker-compose run odoo -u all --load=base,web,openupgrade_framework --upgrade-path=/opt/odoo/auto/addons/openupgrade_scripts/scripts --stop-after-init
+# Desaciendo parches..
+#> MIGRADO A V16 :)
+telegram-send "✅ Se ha hecho el setup de v16 😀"
