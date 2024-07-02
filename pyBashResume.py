@@ -8,6 +8,7 @@ import signal
 import json
 import sys
 import time
+import argparse
 
 
 # Obtiene el directorio donde está ubicado el scripit
@@ -112,73 +113,6 @@ def run_steps():
     current_file = state.get("current_file")
     last_command = state.get("last_command")
 
-
-    # Obtener subdirectorios ordenados
-    # subdirs = sorted([name for name in os.listdir(dir_steps)])
-
-    # Encontrar el punto de inicio
-    # start_dir = subdirs.index(current_dir) if current_dir else 0
-
-    # if current_dir:
-    #     logger.warning(f"Reaunudando directorio: {current_dir}")
-
-    # for subdir in subdirs[start_dir:]:
-        # mig_route = f"{dir_steps}/{subdir}"
-        # file_steps = sorted([name for name in os.listdir(mig_route)])
-
-        # logger.info("\033[34m" + subdir + "\033[0m")
-
-        # start_file = (
-        #     file_steps.index(current_file) if current_file else 0
-        # )
-        # if current_file:
-        #     logger.warning(f"Reaunudando fichero: {current_file}")
-
-        # for file in file_steps[start_file:]:
-        #     file_route = f"{mig_route}/{file}"
-        #     logger.debug(f"Ejecutando {file_route}")
-        #     rules = {
-        #         "#>": "log",
-        #         "#": "comment",
-        #     }
-        #     parser = CustomParser(file_route, rules)
-        #     line_data_list = parser.parse_line()
-        #     if not line_data_list:
-        #         continue
-
-        #     # Restablecer el estado antes de ejecutar
-        #     state.update({
-        #         'current_dir': subdir,
-        #         'current_file': file,
-        #     })
-        #     write_state(state_file, state)
-        #     for line_data in line_data_list:
-        #         cmd = line_data.get('line')
-        #         type = line_data.get('type')
-        #         if type == 'comment':
-        #             logger.debug(f'Comentario {cmd} ignorado')
-        #             continue
-        #         elif type == 'log':
-        #             logger.debug('Detectado ,mensaje LOG')
-        #             logger.info(cmd)
-        #             continue
-
-        #         # Es un comando, compruebo si lo skipeo
-        #         if last_command:
-        #             if cmd != last_command:
-        #                 logger.debug(f"Skip del comando {cmd}")
-        #             logger.info(f"REANUDANDO EJECUCIÓN DE {cmd}")
-                    
-
-        #         # Ejecutar comandos y manejar errores
-        #         success = execute_commands(cmd)
-        #         if not success:
-        #             # Guardar el estado y salir
-        #             state["last_command"] = cmd
-        #             write_state(state_file, state)
-        #             logger.error("Deteniendo ejecución por error en el comando.")
-        #             exit(1)
-    
     mig_route = f"{dir_steps}"
     file_steps = sorted([name for name in os.listdir(mig_route)])
 
@@ -252,16 +186,14 @@ def run_steps():
                 logger.error("Deteniendo ejecución por error en el comando.")
                 exit(1)
 
-def set_doodba_dir():
-    doodba_path = "/opt/doodba-openupgrade/elnogal-migration"
+def set_doodba_dir(doodba_path):
     try:
         os.chdir(doodba_path)
     except FileNotFoundError:
-        logger.error("El directorio 'elnogal-migration' no existe.")
+        logger.error(f"El directorio '{doodba_path}' no existe.")
         exit(1)
     except Exception as e:
-        logger.error(
-            f"Error al cambiar al directorio 'elnogal-migration': {e}")
+        logger.error(f"Error al cambiar al directorio '{doodba_path}': {e}")
         exit(1)
 
 
@@ -271,8 +203,8 @@ def signal_handler(sig, frame):
     exit(0)
 
 # Función principal
-def main():
-    set_doodba_dir()
+def main(doodba_path):
+    set_doodba_dir(doodba_path)
     run_steps()
 
 
@@ -281,4 +213,12 @@ def main():
 if __name__ == "__main__":
     # Capturar la señal de CTRL+C
     signal.signal(signal.SIGINT, signal_handler)
-    main()
+    # Configurar el manejo de la señal SIGINT (Ctrl+C)
+    signal.signal(signal.SIGINT, signal_handler)
+
+    # Configurar el parser de argumentos
+    parser = argparse.ArgumentParser(description='Script para cambiar al directorio especificado y ejecutar pasos.')
+    parser.add_argument('doodba_path', type=str, help='La ruta al directorio doodba')
+    args = parser.parse_args()
+
+    main(args.doodba_path)
