@@ -3,7 +3,7 @@ Ejecutar comandos shell desde ficheros de texto, logueando y recordando el estad
 
 ## COMO USAR
 - Descargar el repositorio
-- Colocar los comandos en ficheros ordenados por nombre por ejemplo, 01-paso1, 02-paso2...
+- Colocar los comandos en ficheros ordenados por nombre en la carpeta `migration-steps'. Por ejemplo, 01-paso1, 02-paso2...
 - Ejecutar `./pyBashResume /ruta/directorio/aplicar/steps`
 - Se ejecutarán los comandos de los ficheros de la carpeta migration-steps línea a línea
 - Si una línea es un comentario de bash empezando po `#` se ignora
