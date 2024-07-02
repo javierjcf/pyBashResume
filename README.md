@@ -12,6 +12,6 @@ Ejecutar comandos shell desde ficheros de texto, logueando y recordando el estad
 ## CONSIDRACIONES
 - Cada línea se ejecuta en un proceso bash separado
 - No se puede hacer un cambio de directorio y que se recuerde en la siguiente línea. De ser el caso el cambio de directorio y los
-  sucesivos comandos deben ser en la misma línea, separados po `;`o `&&`
+  sucesivos comandos deben ser en la misma línea, separados por `;`o `&&`
 - Si occurre algún error se ejecutan los comandos del fichero especial `onerror`
 - El script recuerda el estado gracias al fichero `state.json` el cual puede editarse para controlar donde se resume el script
